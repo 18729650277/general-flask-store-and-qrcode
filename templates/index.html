@@ -1,0 +1,1110 @@
+<!-- 
+版权声明：
+Copyright (c) 2026 ai摸鱼的程序员
+本HTML文件属于通用Flask后端API及管理页面项目的一部分
+许可证：Apache 2.0
+使用本代码需保留此版权注释，并在页面可见区域标注原作者信息
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API服务管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f7fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1;
+        }
+        footer {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        footer a {
+            color: #cbd5e0;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .nav-link:hover {
+            background: #edf2f7;
+        }
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #4a5568;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .logout-btn {
+            background: rgba(229, 62, 62, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 62, 62, 0.4);
+            color: #2d3748;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .logout-btn:hover {
+            background: rgba(229, 62, 62, 0.5);
+            box-shadow: 0 6px 40px rgba(229, 62, 62, 0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #edf2f7;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .stat-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th {
+            text-align: left;
+            padding: 12px;
+            background: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .btn {
+            background: rgba(102, 126, 234, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            color: #2d3748;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            background: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 6px 40px rgba(102, 126, 234, 0.2);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-danger {
+            background: rgba(229, 62, 62, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 62, 62, 0.4);
+            color: #2d3748;
+        }
+        .btn-danger:hover {
+            background: rgba(229, 62, 62, 0.5);
+            box-shadow: 0 6px 40px rgba(229, 62, 62, 0.2);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #edf2f7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: rgba(102, 126, 234, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            color: #2d3748;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .badge-danger {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.8rem 1rem;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-title {
+                font-size: 1.2rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .container {
+                margin: 1rem auto;
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 1.4rem;
+            }
+            
+            .table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .btn-sm {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-links {
+                gap: 5px;
+            }
+            
+            .nav-link {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+            
+            .card-title {
+                font-size: 1rem;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .stat-item {
+                padding: 12px;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .stat-value {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="navbar">
+        <div class="nav-title">API服务管理</div>
+        <div class="nav-links">
+            <span class="nav-link" onclick="showTab('dashboard')">仪表盘</span>
+            <span class="nav-link" onclick="showTab('keys')">API密钥</span>
+            <span class="nav-link" onclick="showTab('store')">数据存储</span>
+            <span class="nav-link" onclick="showTab('settings')">设置</span>
+            <span class="nav-link" onclick="showTab('test')">测试</span>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 仪表盘 -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <div class="card-title">
+                    服务器状态
+                    <button class="btn btn-sm" style="float: right;" onclick="loadDashboard()">刷新</button>
+                </div>
+                <div class="grid" id="server-status">
+                    <div class="stat-item">
+                        <div class="stat-label">运行时间</div>
+                        <div class="stat-value" id="uptime">加载中...</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">CPU使用率</div>
+                        <div class="stat-value" id="cpu">加载中...</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">内存使用率</div>
+                        <div class="stat-value" id="memory">加载中...</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">磁盘使用率</div>
+                        <div class="stat-value" id="disk">加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API密钥管理 -->
+        <div id="keys" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    API密钥管理
+                    <button class="btn btn-sm" style="float: right;" onclick="loadApiKeys()">刷新</button>
+                </div>
+                <div class="form-group">
+                    <label>选择权限 (用逗号分隔)</label>
+                    <input type="text" id="access_for" value="Any" placeholder="例如: Any 或 store,calc,draw">
+                </div>
+                <button class="btn" onclick="addApiKey()">生成新密钥</button>
+                
+                <table class="table" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>密钥</th>
+                            <th>权限</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>最后使用</th>
+                            <th>使用次数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="api-keys-list">
+                        <tr><td colspan="7" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 数据存储 -->
+        <div id="store" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    键值存储
+                    <button class="btn btn-sm" style="float: right;" onclick="listStore()">刷新</button>
+                </div>
+                <div class="form-group">
+                    <label>API Key (可选，留空则使用管理员会话)</label>
+                    <input type="text" id="store_api_key" placeholder="请输入API Key">
+                </div>
+                <div class="form-group">
+                    <label>键名</label>
+                    <input type="text" id="store_key" placeholder="请输入键名">
+                </div>
+                <div class="form-group">
+                    <label>值</label>
+                    <input type="text" id="store_value" placeholder="请输入值">
+                </div>
+                <button class="btn" onclick="setStore()">设置</button>
+                <button class="btn" onclick="getStore()">获取</button>
+                <button class="btn" onclick="listStore()">列出所有数据</button>
+                <button class="btn btn-danger" onclick="deleteStore()">删除</button>
+                
+                <div id="store-result" style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                    结果将显示在这里
+                </div>
+                
+                <div style="margin-top: 20px; display: none;" id="store-list-container">
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteSelected()">批量删除选中</button>
+                        <span id="selected-count" style="margin-left: 10px; color: #718096;"></span>
+                    </div>
+                    <table class="table" id="store-list">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                                </th>
+                                <th>键</th>
+                                <th>值</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="store-items">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置 -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <div class="card-title">修改密码</div>
+                <div class="form-group">
+                    <label>旧密码</label>
+                    <input type="password" id="old_password">
+                </div>
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" id="new_password">
+                </div>
+                <div class="form-group">
+                    <label>确认新密码</label>
+                    <input type="password" id="confirm_password">
+                </div>
+                <button class="btn" onclick="changePassword()">修改密码</button>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">
+                    配置管理
+                    <button class="btn btn-sm" style="float: right;" onclick="loadConfig()">刷新</button>
+                </div>
+                <div id="config-list"></div>
+            </div>
+        </div>
+
+        <!-- 测试 -->
+        <div id="test" class="tab-content">
+            <div class="card">
+                <div class="card-title">功能测试</div>
+                
+                <div class="form-group">
+                    <label>API Key (用于测试)</label>
+                    <input type="text" id="test_api_key" placeholder="请输入API Key">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn" onclick="testHealthCheck()">健康检查</button>
+                    <button class="btn" onclick="testStore()">存储测试</button>
+                    <button class="btn" onclick="testCalc()">计算测试</button>
+                    <button class="btn" onclick="testDraw()">绘图测试</button>
+                    <button class="btn" onclick="testQrCode()">二维码测试</button>
+                </div>
+                
+                <div id="test-result" style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                    测试结果将显示在这里
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 ai摸鱼的程序员. All rights reserved.</p>
+    </footer>
+
+    <script>
+        
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadDashboard();
+            refreshInterval = setInterval(loadDashboard, 1000);
+        });
+        
+        // 检查认证状态
+        function checkAuth() {
+            fetch('/user/status', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.authenticated) {
+                        window.location.href = '/login';
+                    }
+                });
+        }
+        
+        // 切换标签页
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'keys') loadApiKeys();
+            if (tab === 'settings') loadConfig();
+        }
+        
+        // 加载仪表盘数据
+        function loadDashboard() {
+            fetch('/admin/server_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('uptime').textContent = data.uptime_str || '未知';
+                    document.getElementById('cpu').textContent = data.system?.cpu_percent + '%' || '未知';
+                    document.getElementById('memory').textContent = data.system?.memory_percent + '%' || '未知';
+                    document.getElementById('disk').textContent = data.system?.disk_percent + '%' || '未知';
+                })
+                .catch(error => {
+                    console.error('加载仪表盘失败:', error);
+                });
+        }
+        
+        // 加载API密钥列表
+        function loadApiKeys() {
+            fetch('/admin/api_keys?_method=items')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('api-keys-list');
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="loading">暂无API密钥</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(key => `
+                        <tr>
+                            <td>${key.key}</td>
+                            <td>${key.access_for.join(', ')}</td>
+                            <td><span class="badge ${key.valid ? 'badge-success' : 'badge-danger'}">${key.valid ? '有效' : '已禁用'}</span></td>
+                            <td>${new Date(key.created_at * 1000).toLocaleString()}</td>
+                            <td>${key.last_used ? new Date(key.last_used * 1000).toLocaleString() : '从未使用'}</td>
+                            <td>${key.usage_count}</td>
+                            <td>
+                                ${key.valid ? 
+                                    `<button class="btn btn-sm btn-danger" onclick="disableApiKey('${key.full_key}')">禁用</button>` : 
+                                    ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('加载API密钥失败:', error);
+                });
+        }
+        
+        // 添加API密钥
+        function addApiKey() {
+            const access_for = document.getElementById('access_for').value;
+            fetch(`/admin/api_keys?_method=add&access_for=${encodeURIComponent(access_for)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`密钥生成成功: ${data.key}\n请妥善保存此密钥！`);
+                        loadApiKeys();
+                    } else {
+                        alert('生成失败: ' + (data.error || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    alert('网络错误');
+                });
+        }
+        
+        // 禁用API密钥
+        function disableApiKey(key) {
+            if (!confirm('确定要禁用此密钥吗？')) return;
+            
+            fetch(`/admin/api_keys?_method=set_invalid&api_key=${encodeURIComponent(key)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadApiKeys();
+                    } else {
+                        alert('禁用失败');
+                    }
+                })
+                .catch(error => {
+                    alert('网络错误');
+                });
+        }
+        
+        function getStoreApiKey() {
+            return document.getElementById('store_api_key').value;
+        }
+        
+        function buildStoreUrl(path, params = {}) {
+            let url = '/api/store' + path;
+            const apiKey = getStoreApiKey();
+            const allParams = {...params};
+            if (apiKey) {
+                allParams.api_key = apiKey;
+            }
+            const paramString = Object.entries(allParams)
+                .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+                .join('&');
+            return paramString ? `${url}?${paramString}` : url;
+        }
+        
+        // 存储操作
+        function setStore() {
+            const key = document.getElementById('store_key').value;
+            const value = document.getElementById('store_value').value;
+            const apiKey = getStoreApiKey();
+            
+            if (!key || !value) {
+                alert('请填写键和值');
+                return;
+            }
+            
+            const url = apiKey ? `/api/store?_method=POST&api_key=${encodeURIComponent(apiKey)}` : '/api/store?_method=POST';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key: key,
+                    value: value
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('store-result').innerHTML = 
+                        `<div class="alert ${data.success ? 'alert-success' : 'alert-error'}">${data.message || JSON.stringify(data)}</div>`;
+                    // 重新列出数据
+                    listStore();
+                })
+                .catch(error => {
+                    document.getElementById('store-result').innerHTML = '<div class="alert alert-error">网络错误</div>';
+                });
+        }
+        
+        function getStore() {
+            const key = document.getElementById('store_key').value;
+            
+            if (!key) {
+                alert('请输入键名');
+                return;
+            }
+            
+            fetch(buildStoreUrl('', {_method: 'GET', key: key}))
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('store-result').innerHTML = 
+                        `<div class="alert alert-success">值: ${JSON.stringify(data.value)}</div>`;
+                })
+                .catch(error => {
+                    document.getElementById('store-result').innerHTML = '<div class="alert alert-error">获取失败</div>';
+                });
+        }
+        
+        function deleteStore() {
+            const key = document.getElementById('store_key').value;
+            
+            if (!key) {
+                alert('请输入键名');
+                return;
+            }
+            
+            if (!confirm('确定要删除吗？')) return;
+            
+            fetch(buildStoreUrl('', {_method: 'DELETE', key: key}))
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('store-result').innerHTML = 
+                        `<div class="alert ${data.success ? 'alert-success' : 'alert-error'}">${data.message || JSON.stringify(data)}</div>`;
+                    // 重新列出数据
+                    listStore();
+                })
+                .catch(error => {
+                    document.getElementById('store-result').innerHTML = '<div class="alert alert-error">删除失败</div>';
+                });
+        }
+        
+        function listStore() {
+            fetch(buildStoreUrl('', {_method: 'ITEMS'}))
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('store-items');
+                    const container = document.getElementById('store-list-container');
+                    const selectAll = document.getElementById('select-all');
+                    
+                    selectAll.checked = false;
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
+                        container.style.display = 'block';
+                        updateSelectedCount();
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => {
+                        const valueStr = typeof item.value === 'string' ? item.value : JSON.stringify(item.value);
+                        const safeKey = JSON.stringify(item.key);
+                        const safeValue = JSON.stringify(item.value);
+                        return `
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="item-checkbox" data-key="${item.key}" onchange="updateSelectedCount()">
+                            </td>
+                            <td>${item.key}</td>
+                            <td>${valueStr}</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="editStore(${safeKey}, ${safeValue})">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteStoreByKey(${safeKey})">删除</button>
+                            </td>
+                        </tr>
+                    `}).join('');
+                    
+                    container.style.display = 'block';
+                    updateSelectedCount();
+                })
+                .catch(error => {
+                    document.getElementById('store-result').innerHTML = '<div class="alert alert-error">获取数据失败</div>';
+                });
+        }
+        
+        function editStore(key, value) {
+            document.getElementById('store_key').value = key;
+            document.getElementById('store_value').value = typeof value === 'string' ? value : JSON.stringify(value);
+        }
+        
+        function deleteStoreByKey(key) {
+            if (!confirm('确定要删除键 "' + key + '" 吗？')) return;
+            
+            fetch(buildStoreUrl('', {_method: 'DELETE', key: key}))
+                .then(response => response.json())
+                .then(data => {
+                    // 重新列出数据
+                    listStore();
+                })
+                .catch(error => {
+                    document.getElementById('store-result').innerHTML = '<div class="alert alert-error">删除失败</div>';
+                });
+        }
+        
+        // 切换全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateSelectedCount();
+        }
+        
+        // 更新选中数量
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const totalCount = checkboxes.length;
+            const countSpan = document.getElementById('selected-count');
+            const selectAll = document.getElementById('select-all');
+            
+            if (totalCount > 0) {
+                countSpan.textContent = `已选择 ${selectedCount} / ${totalCount} 项`;
+                selectAll.checked = selectedCount === totalCount && totalCount > 0;
+            } else {
+                countSpan.textContent = '';
+            }
+        }
+        
+        // 批量删除选中
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+            const selectedKeys = Array.from(checkboxes).map(cb => cb.dataset.key);
+            
+            if (selectedKeys.length === 0) {
+                alert('请先选择要删除的项');
+                return;
+            }
+            
+            if (!confirm(`确定要删除选中的 ${selectedKeys.length} 项吗？`)) {
+                return;
+            }
+            
+            let deletedCount = 0;
+            let errors = [];
+            
+            const deleteNext = (index) => {
+                if (index >= selectedKeys.length) {
+                    if (errors.length > 0) {
+                        alert(`删除了 ${deletedCount} 项，失败 ${errors.length} 项`);
+                    } else {
+                        alert(`成功删除 ${deletedCount} 项`);
+                    }
+                    listStore();
+                    return;
+                }
+                
+                const key = selectedKeys[index];
+                fetch(buildStoreUrl('', {_method: 'DELETE', key: key}))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            deletedCount++;
+                        } else {
+                            errors.push(key);
+                        }
+                        deleteNext(index + 1);
+                    })
+                    .catch(error => {
+                        errors.push(key);
+                        deleteNext(index + 1);
+                    });
+            };
+            
+            deleteNext(0);
+        }
+        
+        // 修改密码
+        function changePassword() {
+            const oldPassword = document.getElementById('old_password').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('请填写所有字段');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('新密码不匹配');
+                return;
+            }
+            
+            fetch('/admin/change_password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({old_password: oldPassword, new_password: newPassword})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('密码修改成功');
+                    document.getElementById('old_password').value = '';
+                    document.getElementById('new_password').value = '';
+                    document.getElementById('confirm_password').value = '';
+                } else {
+                    alert('修改失败: ' + (data.error || '未知错误'));
+                }
+            })
+            .catch(error => {
+                alert('网络错误');
+            });
+        }
+        
+        // 配置管理
+        let configData = {};
+        
+        function loadConfig() {
+            fetch('/admin/config')
+                .then(response => response.json())
+                .then(data => {
+                    configData = data;
+                    renderConfig();
+                })
+                .catch(error => {
+                    console.error('加载配置失败:', error);
+                });
+        }
+        
+        function renderConfig() {
+            const container = document.getElementById('config-list');
+            container.innerHTML = Object.entries(configData).map(([key, value]) => {
+                const valueStr = typeof value === 'string' ? value : JSON.stringify(value);
+                return `
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>${key}</label>
+                    <input type="text" id="config_${key}" value="${valueStr}" style="margin-bottom: 5px;">
+                    <button class="btn btn-sm" onclick="saveConfig('${key}')">保存</button>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function saveConfig(key) {
+            const input = document.getElementById(`config_${key}`);
+            const value = input.value;
+            
+            let parsedValue;
+            try {
+                parsedValue = JSON.parse(value);
+            } catch {
+                parsedValue = value;
+            }
+            
+            const data = {};
+            data[key] = parsedValue;
+            
+            fetch('/admin/config', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('配置保存成功');
+                    configData[key] = parsedValue;
+                } else {
+                    alert('保存失败: ' + (data.error || '未知错误'));
+                }
+            })
+            .catch(error => {
+                alert('网络错误');
+            });
+        }
+        
+        // 测试功能
+        function getTestApiKey() {
+            return document.getElementById('test_api_key').value;
+        }
+        
+        function showTestResult(message, success = true) {
+            const resultDiv = document.getElementById('test-result');
+            const time = new Date().toLocaleTimeString();
+            const statusClass = success ? 'alert-success' : 'alert-error';
+            const statusIcon = success ? '✓' : '✗';
+            resultDiv.innerHTML = `<div class="alert ${statusClass}">[${time}] ${statusIcon} ${message}</div>` + resultDiv.innerHTML;
+        }
+        
+        function testHealthCheck() {
+            fetch('/health')
+                .then(response => response.json())
+                .then(data => {
+                    showTestResult(`健康检查成功: ${JSON.stringify(data)}`, true);
+                })
+                .catch(error => {
+                    showTestResult(`健康检查失败: ${error}`, false);
+                });
+        }
+        
+        function testStore() {
+            const apiKey = getTestApiKey();
+            const testKey = 'test_' + Date.now();
+            const testValue = 'hello_world_' + Math.random().toString(36).substr(2, 9);
+            
+            let url = `/api/store?_method=POST&key=${encodeURIComponent(testKey)}&value=${encodeURIComponent(testValue)}`;
+            if (apiKey) {
+                url += `&api_key=${encodeURIComponent(apiKey)}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showTestResult(`存储成功: ${testKey} = ${testValue}`, true);
+                    } else {
+                        showTestResult(`存储失败: ${data.error || JSON.stringify(data)}`, false);
+                    }
+                })
+                .catch(error => {
+                    showTestResult(`存储测试失败: ${error}`, false);
+                });
+        }
+        
+        function testCalc() {
+            const apiKey = getTestApiKey();
+            
+            let url = '/api/calc/pow?x=2&y=10';
+            if (apiKey) {
+                url += `&api_key=${encodeURIComponent(apiKey)}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showTestResult(`计算失败: ${data.error}`, false);
+                    } else {
+                        showTestResult(`计算成功: 2^10 = ${data.result}`, true);
+                    }
+                })
+                .catch(error => {
+                    showTestResult(`计算测试失败: ${error}`, false);
+                });
+        }
+        
+        function testQrCode() {
+            const apiKey = getTestApiKey();
+            const testContent = 'Hello, API!';
+            
+            let url = `/api/qr_code?content=${encodeURIComponent(testContent)}`;
+            if (apiKey) {
+                url += `&api_key=${encodeURIComponent(apiKey)}`;
+            }
+            
+            window.open(url, '_blank');
+            showTestResult(`正在打开二维码: "${testContent}"`, true);
+        }
+        
+        function testDraw() {
+            const apiKey = getTestApiKey();
+            const testCommands = 'math(sin(x))';
+            
+            let url = `/api/draw?object=${encodeURIComponent(testCommands)}`;
+            if (apiKey) {
+                url += `&api_key=${encodeURIComponent(apiKey)}`;
+            }
+            
+            window.open(url, '_blank');
+            showTestResult(`正在打开绘图: ${testCommands}`, true);
+        }
+        
+        // 登出
+        function logout() {
+            fetch('/user/logout', {method: 'POST'})
+                .then(() => {
+                    clearInterval(refreshInterval);
+                    window.location.href = '/login';
+                });
+        }
+    </script>
+</body>
+</html>
