@@ -1,0 +1,182 @@
+<!-- 
+版权声明：
+Copyright (c) 2026 ai摸鱼的程序员
+本HTML文件属于通用Flask后端API及管理页面项目的一部分
+许可证：Apache 2.0
+使用本代码需保留此版权注释，并在页面可见区域标注原作者信息
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - API服务管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .error {
+            color: #e53e3e;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #4a5568;
+            border-left: 4px solid #667eea;
+        }
+        .info strong {
+            color: #2d3748;
+        }
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="login-container">
+            <h2>API服务管理</h2>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名" autofocus>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="password" placeholder="请输入密码">
+            </div>
+            <button onclick="login()">登录</button>
+            <div id="error" class="error"></div>
+            <div class="info">
+                <strong>默认登录信息：</strong><br>
+                用户名: admin<br>
+                密码: Admin@123456<br>
+                <span style="color: #e53e3e;">请及时修改密码！</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                document.getElementById('error').textContent = '请输入用户名和密码';
+                return;
+            }
+            
+            fetch('/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({username, password})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/ui';
+                } else {
+                    document.getElementById('error').textContent = data.error || '登录失败';
+                }
+            })
+            .catch(error => {
+                document.getElementById('error').textContent = '网络错误';
+            });
+        }
+        
+        // 回车登录
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+    <footer>
+        <p>&copy; 2026 ai摸鱼的程序员. All rights reserved.</p>
+    </footer>
+</body>
+</html>
